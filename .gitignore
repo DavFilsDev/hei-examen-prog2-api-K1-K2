@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Virtual env
+venv/
+
+# IntelliJ IDEA
+.idea/*
+!.idea/misc.xml
+!.idea/modules.xml
+!.idea/runConfigurations/
