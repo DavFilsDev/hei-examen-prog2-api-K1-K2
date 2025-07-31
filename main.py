@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from fastapi.requests import Request
+from fastapi import Request, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.responses import PlainTextResponse, Response
 from pydantic import BaseModel
@@ -7,7 +7,7 @@ from datetime import datetime
 from typing import List
 from fastapi.exception_handlers import http_exception_handler
 from starlette.exceptions import HTTPException as StarletteHTTPException
-
+import base64
 
 app = FastAPI()
 
@@ -69,3 +69,29 @@ def update_or_add_post(post: PostModel):
                 return {"status": f"{post.title} already up-to-date"}
     posts_store.append(post)
     return {"status": f"{post.title} added"}
+
+def decode_basic_auth(auth_header: str):
+    if not auth_header.startswith("Basic "):
+        raise HTTPException(status_code=400, detail="Invalid auth header format")
+
+    encoded = auth_header.split(" ")[1]
+    try:
+        decoded = base64.b64decode(encoded).decode("utf-8")
+        username, password = decoded.split(":", 1)
+        return username, password
+    except Exception:
+        raise HTTPException(status_code=400, detail="Unable to decode credentials")
+
+@app.get("/ping/auth", response_class=PlainTextResponse)
+def ping_auth(request: Request):
+    auth_header = request.headers.get("Authorization")
+
+    if not auth_header:
+        raise HTTPException(status_code=401, detail="Authorization header missing")
+
+    username, password = decode_basic_auth(auth_header)
+
+    if username == "admin" and password == "123456":
+        return "pong"
+
+    raise HTTPException(status_code=403, detail="Invalid credentials")
