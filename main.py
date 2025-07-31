@@ -1,5 +1,9 @@
 from fastapi import FastAPI
 from fastapi.responses import PlainTextResponse, Response
+from pydantic import BaseModel
+from datetime import datetime
+from typing import List
+
 
 app = FastAPI()
 
@@ -28,3 +32,19 @@ def catch_all(full_path: str):
         status_code=404,
         media_type="text/html"
     )
+
+class PostModel(BaseModel):
+    author: str
+    title: str
+    content: str
+    creation_datetime: datetime
+
+posts_store: List[PostModel] = []
+
+def serialize_posts():
+    return [post.model_dump() for post in posts_store]
+
+@app.post("/posts", status_code=201)
+def create_posts(new_posts: List[PostModel]):
+    posts_store.extend(new_posts)
+    return serialize_posts()
