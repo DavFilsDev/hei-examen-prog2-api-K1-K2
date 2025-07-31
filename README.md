@@ -8,8 +8,6 @@
 - `Group` → K1
 - `Subject` → PROG2-API
 
-## Endpoints
--Nothings from now
 
 ## Installation and Running (Linux & Mac)
 
