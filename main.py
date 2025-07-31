@@ -57,3 +57,15 @@ def create_posts(new_posts: List[PostModel]):
 @app.get("/posts")
 def get_posts():
     return serialize_posts()
+
+@app.put("/posts")
+def update_or_add_post(post: PostModel):
+    for i, stored in enumerate(posts_store):
+        if stored.title == post.title:
+            if stored != post:
+                posts_store[i] = post
+                return {"status": f"{post.title} updated"}
+            else:
+                return {"status": f"{post.title} already up-to-date"}
+    posts_store.append(post)
+    return {"status": f"{post.title} added"}
